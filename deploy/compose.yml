@@ -1,0 +1,45 @@
+services:
+  aidetector:
+    # Image + tag are pinned in .env (copy .env.example -> .env). Pin a real version
+    # for reproducible transfers instead of a floating "latest".
+    # Pin by digest in .env (see VERSIONS.md). Do not float :latest in production.
+    image: "${AIDETECTOR_IMAGE:-ghcr.io/eschouten/ai-detector:latest}"
+    restart: unless-stopped
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    volumes:
+      # config.json is rewritten by the engine (adds $schema) -> do NOT mount read-only.
+      - ./config.json:/data/config.json
+      - ./detections:/data/detections
+      # Optional: drop a local model file in the bundle and reference it by filename
+      # in config.json instead of a URL, for fully offline / version-locked deploys:
+      # - ./models:/data/models
+
+    # --- GPU (NVIDIA) ---------------------------------------------------------
+    # ENABLE this block ONLY on a machine with an NVIDIA GPU + NVIDIA Container
+    # Toolkit (e.g. the future dedicated CowVision PC, or a Jetson). On the current
+    # Intel-UHD-770 PC, leave it commented: the container will run CPU-only there.
+    # runtime: nvidia
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # --- Optional web UI (review detections in a browser) -----------------------
+  # web:
+  #   image: "${AIDETECTOR_WEB_IMAGE:-ghcr.io/eschouten/ai-detector-web:latest}"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - aidetector
+  #   environment:
+  #     HOST: 0.0.0.0
+  #     PORT: 3000
+  #   ports:
+  #     - "80:3000"
+  #   volumes_from:
+  #     - aidetector

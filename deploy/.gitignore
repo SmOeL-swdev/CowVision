@@ -1,0 +1,7 @@
+# Never commit real secrets or runtime output.
+config.json
+.env
+detections/
+models/
+*.pt
+*.onnx

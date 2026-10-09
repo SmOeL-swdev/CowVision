@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ESchouten/ai-detector/main/config/config.schema.json",
+  "_notes": "Canonical CalvingCatcher config. Copy to config.json and fill every <...>. Portable across machines; only the engine BUILD differs per host. No env-var substitution exists, so secrets live here - keep config.json out of git. VERIFY the model URL is the latest CalvingCatcher release.",
+  "onnx": {
+    "winml": true
+  },
+  "detectors": [
+    {
+      "detection": {
+        "source": [
+          "rtsp://<USER>:<PASS>@<CAM1_HIKVISION_IP>:554/Streaming/Channels/101",
+          "rtsp://<USER>:<PASS>@<CAM2_HIKVISION_IP>:554/Streaming/Channels/101",
+          "rtsp://<USER>:<PASS>@<CAM3_HIKVISION_IP>:554/Streaming/Channels/101"
+        ],
+        "interval": 0.5,
+        "frame_retention": 20
+      },
+      "yolo": {
+        "model": "https://github.com/CowCatcherAI/CalvingCatcherAI/releases/download/CalvingcatcherV1/calvingcatcherV10.1.pt",
+        "confidence": {
+          "waterbag": 0.8,
+          "legs": 0.8,
+          "head": 0.8,
+          "body": 0.8,
+          "calf": 0.8
+        },
+        "cooldown": {
+          "waterbag": 900,
+          "legs": 900,
+          "head": 900,
+          "body": 900,
+          "calf": 900
+        },
+        "time_max": 20,
+        "timeout": 30,
+        "frames_min": 6,
+        "imgsz": 640,
+        "strategy": "LATEST"
+      },
+      "exporters": {
+        "disk": {
+          "strategy": "BEST",
+          "directory": "calving"
+        },
+        "webhook": {
+          "url": "http://<HA_IP>:8123/api/webhook/<WEBHOOK_ID>",
+          "data_type": "base64",
+          "confidence": 0.85,
+          "include_image": false,
+          "include_plot": false,
+          "include_video": false
+        }
+      }
+    }
+  ]
+}

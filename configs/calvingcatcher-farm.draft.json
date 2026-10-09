@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ESchouten/ai-detector/main/config/config.schema.json",
+  "_notes": "DRAFT for the farm Dell OptiPlex (Win11, Intel UHD 770 -> winml build). CalvingCatcher only, 3 cameras, exporters = disk + Home Assistant webhook. Replace every <...> placeholder on the farm machine. Do NOT commit real secrets. VERIFY the model URL is the latest CalvingCatcher release before use. Webhook keys are url/token (NOT webhook_url/webhook_token).",
+  "onnx": {
+    "winml": true
+  },
+  "detectors": [
+    {
+      "detection": {
+        "source": [
+          "rtsp://<USER>:<PASS>@<CAM1_HIKVISION_IP>:554/Streaming/Channels/101",
+          "rtsp://<USER>:<PASS>@<CAM2_HIKVISION_IP>:554/Streaming/Channels/101",
+          "rtsp://<USER>:<PASS>@<CAM3_HIKVISION_IP>:554/Streaming/Channels/101"
+        ],
+        "interval": 0.5,
+        "frame_retention": 20
+      },
+      "yolo": {
+        "model": "https://github.com/CowCatcherAI/CalvingCatcherAI/releases/download/CalvingcatcherV1/calvingcatcherV10.1.pt",
+        "confidence": {
+          "waterbag": 0.8,
+          "legs": 0.8,
+          "head": 0.8,
+          "body": 0.8,
+          "calf": 0.8
+        },
+        "cooldown": {
+          "waterbag": 900,
+          "legs": 900,
+          "head": 900,
+          "body": 900,
+          "calf": 900
+        },
+        "time_max": 20,
+        "timeout": 30,
+        "frames_min": 6,
+        "imgsz": 640,
+        "strategy": "LATEST"
+      },
+      "exporters": {
+        "disk": {
+          "strategy": "BEST",
+          "directory": "calving"
+        },
+        "webhook": {
+          "url": "http://<HA_IP>:8123/api/webhook/<WEBHOOK_ID>",
+          "data_type": "base64",
+          "confidence": 0.85,
+          "include_image": false,
+          "include_plot": false,
+          "include_video": false
+        }
+      }
+    }
+  ]
+}
