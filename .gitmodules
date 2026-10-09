@@ -1,0 +1,6 @@
+[submodule "repos/ai-detector"]
+	path = repos/ai-detector
+	url = https://github.com/ESchouten/ai-detector
+[submodule "repos/CowCatcherAI"]
+	path = repos/CowCatcherAI
+	url = https://github.com/CowCatcherAI/CowCatcherAI
